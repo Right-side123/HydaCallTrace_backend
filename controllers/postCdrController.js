@@ -17,62 +17,92 @@ const postCdrData = async (req, res) => {
             recording_link,
             circle,
             SIM_number
-
-            //    agent_disconnected_at, agent_duration,
-            //     agent_billsec, customer_duration, customer_billsec,
-            //     customer_status, customer_dial_start, customer_answered_at,
-            //     customer_disconnected_at, api_body, asteriskconnection,
-            //     asterisk_response, api_response, recording_file, agent_outcallerid,
-            //     customer_outcallerid, agent_dialstatus, agent_disposition,
-            //     agent_hangupcause, agent_hangup_isdn_string, agent_hangup_sip_reason,
-            //     customer_dialstatus, customer_disposition, customer_hangupcause,
-            //     customer_hangup_isdn_string, customer_hangup_sip_reason, Circle, SIM_Number
         } = req.body;
 
 
-        const sql = `
+        const requestData = {
+            call_datetime, agent_no, custphone, calltype, call_start_time,
+            call_end_time, dst_no, duration, call_wait_time, bill_sec,
+            hangup_cause, recording_link, circle, SIM_number
+        };
+
+
+        if (!call_datetime || !call_start_time || !call_end_time || !dst_no || !duration || !hangup_cause || !circle) {
+            return res.status(400).json({
+                Status: "Error",
+                message: "Missing required fields",
+                data: requestData
+            });
+        }
+
+
+        const formattedCallType = calltype ? calltype.trim().toLowerCase() : '';
+
+
+        if (formattedCallType === 'outbound' && (!agent_no || agent_no.trim() === '')) {
+            return res.status(400).json({
+                Status: "Error",
+                message: "agent_no is mandatory for Outbound calls",
+                data: requestData
+            });
+        }
+
+        if (formattedCallType === 'incomming call' && (!custphone || custphone.trim() === '')) {
+            return res.status(400).json({
+                Status: "Error",
+                message: "custphone is mandatory for Incoming calls",
+                data: requestData
+            });
+        }
+
+
+        const insertQuery = `
             INSERT INTO customcdr (
-                call_datetime,
-                agent_no,
-                custphone,
-                calltype,
-                call_start_time,
-                call_end_time,
-                dst_no,
-                duration,
-                call_wait_time,
-                bill_sec,
-                hangup_cause,
-                recording_link,
-                circle,
-                SIM_number
-                ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)
-            `;
+                call_datetime, agent_no, custphone, calltype, call_start_time,
+                call_end_time, dst_no, duration, call_wait_time, bill_sec,
+                hangup_cause, recording_link, circle, SIM_number
+            ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+        `;
 
-
-        await query(sql, [
-            call_datetime,
-            agent_no,
-            custphone,
-            calltype,
-            call_start_time,
-            call_end_time,
-            dst_no,
-            duration,
-            call_wait_time,
-            bill_sec,
-            hangup_cause,
-            recording_link,
-            circle,
-            SIM_number
+        const result = await query(insertQuery, [
+            call_datetime, agent_no || null, custphone || null, formattedCallType,
+            call_start_time, call_end_time, dst_no, duration, call_wait_time || 0,
+            bill_sec || 0, hangup_cause, recording_link || null, circle, SIM_number || null
         ]);
 
+        const insertedId = result.insertId;
 
-        res.status(201).json({ message: 'Data inserted successfully' });
+
+        const fetchQuery = `SELECT * FROM customcdr WHERE id = ?`;
+        const insertedData = await query(fetchQuery, [insertedId]);
+
+        const fixedData = JSON.parse(JSON.stringify(insertedData[0], (key, value) =>
+            typeof value === "bigint" ? value.toString() : value
+        ));
+
+        res.status(201).json({
+            Status: "Success",
+            message: "Data inserted successfully",
+            insertedData: fixedData
+        });
 
     } catch (error) {
         console.error('Error inserting data:', error);
-        res.status(500).json({ error: 'Internal Server Error' });
+
+
+        if (error.sqlMessage) {
+            return res.status(400).json({
+                Status: "Error",
+                message: error.sqlMessage,
+                data: req.body
+            });
+        }
+
+        res.status(500).json({
+            Status: "Error",
+            message: "Internal Server Error",
+            data: req.body
+        });
     }
 };
 

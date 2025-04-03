@@ -29,9 +29,11 @@ const {
 } = require('../controllers/dashboard');
 
 
-const { postCdrData } = require('../controllers/postCdrController')
+const { insertCdr, postCdrData } = require('../controllers/postCdrController')
 
 router.post('/cdr', postCdrData);
+
+router.post('/custom_cdr', insertCdr)
 
 router.post('/login', login);
 

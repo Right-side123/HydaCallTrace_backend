@@ -216,6 +216,9 @@ const getCdrData = async (req, res) => {
         }
 
         const cdrData = await query(querySql, queryParams);
+        console.log('Query result count:', cdrData.length);
+console.log('Query result data:', cdrData);
+
 
         return res.json({ manager_id, cdr_data: cdrData });
     } catch (err) {

@@ -788,7 +788,11 @@ const getMissedCall = async (req, res) => {
                 c.from_waiting_time,
                 c.recording,
                 c.end_time,
-                c.destination_operator_name
+                c.destination_operator_name,
+                      CASE
+          WHEN c.call_type = 'OUTBOUND' THEN c.destination_number
+          WHEN c.call_type = 'INBOUND' THEN c.caller_id
+        END AS customer_number
             FROM custom_cdr_calls c
             JOIN agent a 
               ON (

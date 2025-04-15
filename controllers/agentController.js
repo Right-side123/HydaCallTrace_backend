@@ -308,6 +308,7 @@ const AgentsController = async (req, res) => {
 
     let agentSql = `
       SELECT 
+      a.id,
         a.agentname,
         a.agentmobile,
         m.managername,

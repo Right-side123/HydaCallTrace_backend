@@ -208,7 +208,7 @@ const { query } = require('../config/db');
 
 const getCdrData = async (req, res) => {
     const { manager_id } = req.params;
-    const { startDate, endDate, startTime, endTime, agent, filter } = req.query;
+    const { startDate, endDate, startTime, endTime, agent, filter, callStatus } = req.query;
 
     if (!startDate || !endDate) {
         return res.status(400).json({ error: 'Both startDate and endDate are required' });
@@ -236,6 +236,22 @@ const getCdrData = async (req, res) => {
         return res.status(400).json({ error: 'Invalid filter provided' });
     }
 
+    let callStatusCondition = "";
+
+    if (callStatus === 'ANSWERED') {
+        callStatusCondition = "(c.overall_call_status = 'ANSWERED')";
+    } else if (callStatus === 'Missed') {
+        callStatusCondition = "(c.overall_call_status = 'Missed')";
+    } else if (callStatus === 'all') {
+        callStatusCondition = `(
+            (c.overall_call_status = 'ANSWERED')
+            OR
+            (c.overall_call_status = 'Missed')
+        )`;
+    } else {
+        return res.status(400).json({ error: 'Invalid filter provided' });
+    }
+
     try {
         let queryParams = [];
         let whereClauses = [];
@@ -250,6 +266,10 @@ const getCdrData = async (req, res) => {
 
         if (filterCondition) {
             whereClauses.push(filterCondition);
+        }
+
+        if (callStatusCondition) {
+            whereClauses.push(callStatusCondition)
         }
 
         if (agent) {

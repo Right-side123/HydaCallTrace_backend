@@ -31,13 +31,15 @@ const {
 } = require('../controllers/dashboard');
 
 
-const { insertCdr, postCdrData, insertAgent } = require('../controllers/postCdrController');
+const { insertCdr, postCdrData, insertAgent, updateAgent } = require('../controllers/postCdrController');
 
 router.post('/cdr', postCdrData);
 
 router.post('/custom_cdr', insertCdr);
 
 router.post('/insertagent', insertAgent);
+
+router.put('/updateagent/:id', updateAgent)
 
 router.post('/login', login);
 

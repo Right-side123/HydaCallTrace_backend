@@ -424,4 +424,89 @@ const insertAgent = async (req, res) => {
   }
 };
 
-module.exports = { postCdrData, insertCdr, insertAgent };
+
+// ****************************************************************                          Update Agent        ****************************
+
+
+const updateAgent = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const {
+      agentname,
+      agentmobile,
+      managername,
+      department,
+      imei_no,
+      SIM_No,
+      status
+    } = req.body;
+
+    const validStatus = ["active", "not active"];
+    if (!validStatus.includes(status.toLowerCase())) {
+      return res.status(400).json({
+        Status: "Error",
+        message: "Status must be 'active' or 'not active'"
+      });
+    }
+
+    const managerQuery = `SELECT manager_id FROM manager WHERE managername = ?`;
+    const managerResult = await query(managerQuery, [managername]);
+
+    if (managerResult.length === 0) {
+      return res.status(400).json({
+        Status: "Error",
+        message: "Manager not found"
+      });
+    }
+
+    const managerId = managerResult[0].manager_id;
+
+    const capitalizeStatus =
+      status.toLowerCase() === "active" ? "Active" : "Not Active";
+
+    const updateQuery = `
+      UPDATE agent SET
+        agentname = ?,
+        agentmobile = ?,
+        manager_id = ?,
+        department = ?,
+        imei_no = ?,
+        SIM_No = ?,
+        status = ?
+      WHERE id = ?
+    `;
+
+    const updateValues = [
+      agentname,
+      agentmobile,
+      managerId,
+      department,
+      imei_no,
+      SIM_No,
+      capitalizeStatus,
+      id
+    ];
+
+    await query(updateQuery, updateValues);
+
+    const updatedData = await query(`SELECT * FROM agent WHERE id = ?`, [id]);
+
+    res.status(200).json({
+      Status: "Success",
+      message: "Agent updated successfully",
+      updatedData: updatedData[0]
+    });
+
+  } catch (error) {
+    console.error("Error updating agent:", error);
+    res.status(500).json({
+      Status: "Error",
+      message: "Internal Server Error",
+      error: error.message
+    });
+  }
+};
+
+
+module.exports = { postCdrData, insertCdr, insertAgent, updateAgent };

@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const { login } = require('../controllers/loginController');
 const { AgentsController } = require('../controllers/agentController');
-const { getCdrData } = require('../controllers/cdrController')
+const { getCdrData } = require('../controllers/cdrController');
 
 const {
     getInboundCdrData,
@@ -13,9 +13,11 @@ const { getConnectedCall,
     getNotconnectedCall,
     getMissedOutboundCall,
     getMissedCall
-} = require('../controllers/callDisposition')
+} = require('../controllers/callDisposition');
 
-const { getCdrByAgent } = require('../controllers/singleAgent')
+const { getCdrByAgent } = require('../controllers/singleAgent');
+
+const { ManagerController } = require('../controllers/managerController');
 
 
 const {
@@ -29,13 +31,17 @@ const {
 } = require('../controllers/dashboard');
 
 
-const { insertCdr, postCdrData } = require('../controllers/postCdrController')
+const { insertCdr, postCdrData, insertAgent } = require('../controllers/postCdrController');
 
 router.post('/cdr', postCdrData);
 
-router.post('/custom_cdr', insertCdr)
+router.post('/custom_cdr', insertCdr);
+
+router.post('/insertagent', insertAgent);
 
 router.post('/login', login);
+
+router.get('/manager', ManagerController);
 
 router.get('/agents/:manager_id', AgentsController);
 
@@ -63,11 +69,11 @@ router.get('/totalinbound/:manager_id', getInboundLength);
 
 router.get('/totaloutbound/:manager_id', getOutboundLength);
 
-router.get('/totalconnected/:manager_id', getconnectedLength);
+// router.get('/totalconnected/:manager_id', getconnectedLength);
 
-router.get('/totalnotconnected/:manager_id', getnotconnectedLength);
+// router.get('/totalnotconnected/:manager_id', getnotconnectedLength);
 
-router.get('/totalmissedoutbound/:manager_id', getMissedoutboundLength);
+// router.get('/totalmissedoutbound/:manager_id', getMissedoutboundLength);
 
 router.get('/totalmissed/:manager_id', getMissedLength);
 

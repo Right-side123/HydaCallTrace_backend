@@ -326,4 +326,102 @@ const insertCdr = async (req, res) => {
   }
 };
 
-module.exports = { postCdrData, insertCdr };
+//   **********************************************     Agent Post   ****************
+
+const insertAgent = async (req, res) => {
+  try {
+
+    const {
+      agentname,
+      agentmobile,
+      managername, 
+      department,
+      imei_no,
+      SIM_No,
+      status
+    } = req.body;
+
+ 
+    const validStatus = ["active", "not active"];
+    if (!validStatus.includes(status.toLowerCase())) {
+      return res.status(400).json({
+        Status: "Error",
+        message: "Status must be 'active' or 'not active'"
+      });
+    }
+
+   
+    const managerQuery = `SELECT manager_id FROM manager WHERE managername = ?`;
+    const managerResult = await query(managerQuery, [managername]);
+
+    if (managerResult.length === 0) {
+      return res.status(400).json({
+        Status: "Error",
+        message: "Manager not found"
+      });
+    }
+
+    const managerId = managerResult[0].manager_id;
+
+    
+    const insertAgentQuery = `
+      INSERT INTO agent (
+        agentname,
+        agentmobile,
+        manager_id, 
+        department,
+        imei_no,
+        SIM_No,
+        status
+      ) VALUES (?, ?, ?, ?, ?, ?, ?)
+    `;
+
+    const capitalizeStatus =
+       status.toLowerCase() === "active" ? "Active" : "Not Active"; 
+
+    const requestAgentdata = [
+      agentname,
+      agentmobile,
+      managerId,  
+      department,
+      imei_no,
+      SIM_No,
+      capitalizeStatus
+    ];
+
+    const result = await query(insertAgentQuery, requestAgentdata);
+    const insertId = result.insertId;
+
+    
+    const fetchQuery = `SELECT * FROM agent WHERE id = ?`;
+    const insertedData = await query(fetchQuery, [insertId]);
+
+    const fixedData = JSON.parse(JSON.stringify(insertedData[0], (key, value) =>
+      typeof value === "bigint" ? value.toString() : value
+    ));
+
+    res.status(201).json({
+      Status: "Success",
+      message: "Agent inserted successfully",
+      insertedData: fixedData
+    });
+
+  } catch (error) {
+    console.error('Error inserting agent:', error);
+    if (error.sqlMessage) {
+      return res.status(400).json({
+        Status: "Error",
+        message: error.sqlMessage,
+        data: req.body
+      });
+    }
+
+    res.status(500).json({
+      Status: "Error",
+      message: "Internal Server Error",
+      data: req.body
+    });
+  }
+};
+
+module.exports = { postCdrData, insertCdr, insertAgent };

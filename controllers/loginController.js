@@ -8,7 +8,7 @@ const login = async (req, res) => {
     const managerNameLower = manager_name.toLowerCase();
 
 
-    const sql = "SELECT * FROM managers WHERE LOWER(source) = ? AND password = ?";
+    const sql = "SELECT * FROM manager WHERE LOWER(managername) = ? AND password = ?";
     const result = await query(sql, [managerNameLower, password]);
 
     if (result.length === 0) {
@@ -30,7 +30,7 @@ const login = async (req, res) => {
 
     res.json({
       manager_id: manager.manager_id,
-      manager_name: manager.source,
+      manager_name: manager.managername,
       // accessToken: accessToken,
       // agents: agents,
     });

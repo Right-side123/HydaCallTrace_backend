@@ -332,13 +332,11 @@ const AgentsController = async (req, res) => {
 
     let queryParams = [];
 
-    // Manager filter (if not admin i.e. id != 2)
     if (manager_id != 1) {
       agentSql += ` WHERE a.manager_id = ?`;
       queryParams.push(manager_id);
     }
 
-    // Date filter
     if (start_date && end_date) {
       if (manager_id != 1) {
         agentSql += ` AND c.timestamp BETWEEN ? AND ?`;
@@ -348,12 +346,10 @@ const AgentsController = async (req, res) => {
       queryParams.push(start_date, end_date);
     }
 
-    // Group by agent
     agentSql += ` GROUP BY a.agentname, a.agentmobile`;
 
     const agents = await query(agentSql, queryParams);
 
-    // Convert bigint to string if needed
     const formattedAgents = agents.map(agent => {
       const formattedAgent = { ...agent };
       Object.keys(formattedAgent).forEach(key => {
@@ -372,6 +368,33 @@ const AgentsController = async (req, res) => {
   }
 };
 
-module.exports = { AgentsController };
 
 
+//   **********************************************************************      Agent get for Update agent *********************
+
+
+const getAgentById = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const sql = `
+      SELECT a.*, m.managername
+      FROM agent a
+      LEFT JOIN manager m ON a.manager_id = m.manager_id
+      WHERE a.id = ?
+    `;
+
+    const result = await query(sql, [id]);
+
+    if (result.length === 0) {
+      return res.status(404).json({ message: "Agent not found", agents: [] });
+    }
+
+    res.status(200).json({ agents: result });
+  } catch (error) {
+    console.error("Error fetching agent by ID:", error);
+    res.status(500).json({ message: "Internal Server Error", error: error.message });
+  }
+};
+
+module.exports = { AgentsController, getAgentById };

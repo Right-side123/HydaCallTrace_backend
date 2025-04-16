@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const { login } = require('../controllers/loginController');
-const { AgentsController } = require('../controllers/agentController');
+const { AgentsController, getAgentById } = require('../controllers/agentController');
 const { getCdrData } = require('../controllers/cdrController');
 
 const {
@@ -46,6 +46,8 @@ router.post('/login', login);
 router.get('/manager', ManagerController);
 
 router.get('/agents/:manager_id', AgentsController);
+
+router.get('/agent/:id', getAgentById)
 
 router.get('/customcdr/:manager_id', getCdrData);
 

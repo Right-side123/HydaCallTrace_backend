@@ -334,14 +334,14 @@ const insertAgent = async (req, res) => {
     const {
       agentname,
       agentmobile,
-      managername, 
+      managername,
       department,
       imei_no,
       SIM_No,
       status
     } = req.body;
 
- 
+
     const validStatus = ["active", "not active"];
     if (!validStatus.includes(status.toLowerCase())) {
       return res.status(400).json({
@@ -350,7 +350,7 @@ const insertAgent = async (req, res) => {
       });
     }
 
-   
+
     const managerQuery = `SELECT manager_id FROM manager WHERE managername = ?`;
     const managerResult = await query(managerQuery, [managername]);
 
@@ -363,7 +363,7 @@ const insertAgent = async (req, res) => {
 
     const managerId = managerResult[0].manager_id;
 
-    
+
     const insertAgentQuery = `
       INSERT INTO agent (
         agentname,
@@ -377,12 +377,12 @@ const insertAgent = async (req, res) => {
     `;
 
     const capitalizeStatus =
-       status.toLowerCase() === "active" ? "Active" : "Not Active"; 
+      status.toLowerCase() === "active" ? "Active" : "Not Active";
 
     const requestAgentdata = [
       agentname,
       agentmobile,
-      managerId,  
+      managerId,
       department,
       imei_no,
       SIM_No,
@@ -392,7 +392,7 @@ const insertAgent = async (req, res) => {
     const result = await query(insertAgentQuery, requestAgentdata);
     const insertId = result.insertId;
 
-    
+
     const fetchQuery = `SELECT * FROM agent WHERE id = ?`;
     const insertedData = await query(fetchQuery, [insertId]);
 
@@ -507,6 +507,5 @@ const updateAgent = async (req, res) => {
     });
   }
 };
-
 
 module.exports = { postCdrData, insertCdr, insertAgent, updateAgent };

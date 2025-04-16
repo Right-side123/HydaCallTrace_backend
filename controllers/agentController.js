@@ -320,7 +320,13 @@ const AgentsController = async (req, res) => {
           (c.call_type = 'INBOUND' AND c.destination_number = a.agentmobile)) AS totalCalls,
         SUM(CASE WHEN c.call_type = 'OUTBOUND' THEN 1 ELSE 0 END) AS totaloutbound,
         SUM(CASE WHEN c.call_type = 'INBOUND' THEN 1 ELSE 0 END) AS totalinbound,
-        SUM(CASE WHEN c.overall_call_status = 'Missed' THEN 1 ELSE 0 END) AS totalMissed
+        SUM(CASE WHEN c.overall_call_status = 'Missed' THEN 1 ELSE 0 END) AS totalMissed,
+        COUNT(DISTINCT 
+            CASE WHEN c.call_type = 'OUTBOUND' THEN c.destination_number
+                  WHEN c.call_type = 'INBOUND' THEN c.caller_id
+            END
+          ) AS totalUnique
+
       FROM agent a
       LEFT JOIN manager m ON a.manager_id = m.manager_id 
       LEFT JOIN custom_cdr_calls c 

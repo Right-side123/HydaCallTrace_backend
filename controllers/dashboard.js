@@ -162,7 +162,7 @@ const { query } = require('../config/db');
 
 //         if (manager_id == 2) {
 //             querySql = `
-            
+
 //             SELECT COUNT(*) AS total_count
 //             FROM customcdr c 
 //             JOIN rs_agentmobile a ON c.agent = a.agentmobile         
@@ -570,8 +570,53 @@ async function getMissedLength(req, res) {
 
 
 
+const getUniqueCalls = async (req, res) => {
+    const { manager_id } = req.params;
 
+    let queryParams = [];
+    let whereClauses = [];
 
+    if (manager_id != 1) {
+        whereClauses.push("a.manager_id = ?");
+        queryParams.push(manager_id);
+    }
+
+    const querySql = `
+        SELECT COUNT(*) AS total_unique_customer_calls
+        FROM (
+            SELECT 
+                ROW_NUMBER() OVER (
+                    PARTITION BY 
+                        CASE
+                            WHEN c.call_type = 'OUTBOUND' THEN c.destination_number
+                            WHEN c.call_type = 'INBOUND' THEN c.caller_id
+                        END
+                    ORDER BY c.timestamp DESC
+                ) AS rn
+            FROM custom_cdr_calls c
+            JOIN agent a ON (
+                (c.call_type = 'OUTBOUND' AND c.caller_id = a.agentmobile)
+                OR
+                (c.call_type = 'INBOUND' AND c.destination_number = a.agentmobile)
+            )
+            ${whereClauses.length > 0 ? `WHERE ${whereClauses.join(" AND ")}` : ""}
+        ) AS sub
+        WHERE sub.rn = 1
+    `;
+
+    try {
+        // console.log('Query:', querySql);
+        // console.log('Params:', queryParams);
+
+        const result = await query(querySql, queryParams);
+        const count = result[0].total_unique_customer_calls;
+
+        res.json({ manager_id, total_unique_customer_calls: count.toString() });
+    } catch (err) {
+        console.error("Error counting CDR data:", err);
+        res.status(500).json({ error: "Failed to count unique customer calls" });
+    }
+};
 
 module.exports = {
     getCustomcdrLength,
@@ -580,5 +625,6 @@ module.exports = {
     // getconnectedLength,
     // getnotconnectedLength,
     // getMissedoutboundLength,
-    getMissedLength
+    getMissedLength,
+    getUniqueCalls
 };

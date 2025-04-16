@@ -27,7 +27,8 @@ const {
     getconnectedLength,
     getnotconnectedLength,
     getMissedoutboundLength,
-    getMissedLength
+    getMissedLength,
+    getUniqueCalls
 } = require('../controllers/dashboard');
 
 
@@ -82,5 +83,7 @@ router.get('/totaloutbound/:manager_id', getOutboundLength);
 // router.get('/totalmissedoutbound/:manager_id', getMissedoutboundLength);
 
 router.get('/totalmissed/:manager_id', getMissedLength);
+
+router.get('/uniqueCalls/:manager_id', getUniqueCalls);
 
 module.exports = router;

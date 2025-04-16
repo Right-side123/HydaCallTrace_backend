@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const { login } = require('../controllers/loginController');
 const { AgentsController, getAgentById } = require('../controllers/agentController');
-const { getCdrData } = require('../controllers/cdrController');
+const { getCdrData, getCdrDataSigletime } = require('../controllers/cdrController');
 
 const {
     getInboundCdrData,
@@ -50,6 +50,8 @@ router.get('/agents/:manager_id', AgentsController);
 router.get('/agent/:id', getAgentById)
 
 router.get('/customcdr/:manager_id', getCdrData);
+
+router.get('/cdrsingletime/:manager_id', getCdrDataSigletime)
 
 router.get('/inbound/:manager_id', getInboundCdrData);
 

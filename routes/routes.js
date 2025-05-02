@@ -3,6 +3,7 @@ const router = express.Router();
 const { login } = require('../controllers/loginController');
 const { AgentsController, getAgentById } = require('../controllers/agentController');
 const { getCdrData, getCdrDataSigletime } = require('../controllers/cdrController');
+const checkToken = require('../middlewares/authMiddleware');
 
 const {
     getInboundCdrData,
@@ -36,7 +37,7 @@ const { insertCdr, postCdrData, insertAgent, updateAgent } = require('../control
 
 router.post('/cdr', postCdrData);
 
-router.post('/custom_cdr', insertCdr);
+router.post('/custom_cdr',checkToken, insertCdr);
 
 router.post('/insertagent', insertAgent);
 

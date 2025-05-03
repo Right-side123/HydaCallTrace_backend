@@ -738,14 +738,14 @@ const getMissedCall = async (req, res) => {
     let filterCondition = "";
 
     if (filter === 'outbound') {
-        filterCondition = "(c.overall_call_status = 'Missed' AND c.caller_id = a.agentmobile)";
+        filterCondition = "(c.overall_call_status = 'Missed' AND RIGHT(c.caller_id, 10) = a.agentmobile)";
     } else if (filter === 'inbound') {
-        filterCondition = "(c.overall_call_status = 'Missed' AND c.destination_number = a.agentmobile)";
+        filterCondition = "(c.overall_call_status = 'Missed' AND RIGHT(c.destination_number, 10) = a.agentmobile)";
     } else if (filter === 'all') {
         filterCondition = `
-        ((c.overall_call_status = 'Missed' AND c.caller_id = a.agentmobile)
+        ((c.overall_call_status = 'Missed' AND RIGHT(c.caller_id, 10) = a.agentmobile)
         OR
-        (c.overall_call_status = 'Missed' AND c.destination_number = a.agentmobile))
+        (c.overall_call_status = 'Missed' AND RIGHT(c.destination_number, 10) = a.agentmobile))
         `;
     } else {
         return res.status(400).json({ error: 'Invalid filter provided' });
@@ -796,9 +796,9 @@ const getMissedCall = async (req, res) => {
             FROM custom_cdr_calls c
             JOIN agent a 
               ON (
-                (c.call_type = 'OUTBOUND' AND c.caller_id = a.agentmobile)
+                (c.call_type = 'OUTBOUND' AND RIGHT(c.caller_id, 10) = a.agentmobile)
                 OR
-                (c.call_type = 'INBOUND' AND c.destination_number = a.agentmobile)
+                (c.call_type = 'INBOUND' AND RIGHT(c.destination_number, 10) = a.agentmobile)
               )
             WHERE c.timestamp BETWEEN ? AND ?
             AND ${filterCondition}

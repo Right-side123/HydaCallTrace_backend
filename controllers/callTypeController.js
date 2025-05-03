@@ -369,7 +369,7 @@ const getOutboundCdrData = async (req, res) => {
 
             FROM custom_cdr_calls c
 
-            JOIN agent a ON c.caller_id = a.agentmobile
+            JOIN agent a ON RIGHT(c.caller_id, 10) = a.agentmobile
            
             WHERE c.timestamp BETWEEN ? AND ?
               AND c.call_type = 'OUTBOUND';
@@ -415,7 +415,7 @@ const getOutboundCdrData = async (req, res) => {
         
             FROM custom_cdr_calls c
 
-            JOIN agent a ON c.caller_id = a.agentmobile
+            JOIN agent a ON RIGHT(c.caller_id, 10) = a.agentmobile
            
             WHERE a.manager_id = ?
             AND c.timestamp BETWEEN ? AND ?
@@ -499,7 +499,7 @@ const getInboundCdrData = async (req, res) => {
 
             FROM custom_cdr_calls c
 
-            JOIN agent a ON c.destination_number = a.agentmobile
+            JOIN agent a ON RIGHT(c.destination_number, 10) = a.agentmobile
            
             WHERE c.timestamp BETWEEN ? AND ?
               AND c.call_type = 'INBOUND';
@@ -545,7 +545,7 @@ const getInboundCdrData = async (req, res) => {
 
             FROM custom_cdr_calls c
 
-            JOIN agent a ON c.destination_number = a.agentmobile
+            JOIN agent a ON RIGHT(c.destination_number, 10) = a.agentmobile
            
             WHERE a.manager_id = ?
             AND c.timestamp BETWEEN ? AND ?

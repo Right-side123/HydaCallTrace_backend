@@ -380,9 +380,9 @@ async function getCustomcdrLength(req, res) {
                 SELECT COUNT(*) AS total_count
                 FROM custom_cdr_calls c
                 JOIN agent a ON (
-                (c.call_type = 'OUTBOUND' AND c.caller_id = a.agentmobile)
+                (c.call_type = 'OUTBOUND' AND RIGHT(c.caller_id, 10) = a.agentmobile)
                 OR
-                (c.call_type = 'INBOUND' AND c.destination_number = a.agentmobile)
+                (c.call_type = 'INBOUND' AND RIGHT(c.destination_number, 10) = a.agentmobile)
             )
             `;
         } else {
@@ -391,9 +391,9 @@ async function getCustomcdrLength(req, res) {
                 SELECT COUNT(*) AS total_count
                 FROM custom_cdr_calls c
                 JOIN agent a ON (
-                (c.call_type = 'OUTBOUND' AND c.caller_id = a.agentmobile)
+                (c.call_type = 'OUTBOUND' AND RIGHT(c.caller_id, 10) = a.agentmobile)
                 OR
-                (c.call_type = 'INBOUND' AND c.destination_number = a.agentmobile)
+                (c.call_type = 'INBOUND' AND RIGHT(c.destination_number, 10) = a.agentmobile)
             )
                 WHERE a.manager_id = ?
             `;
@@ -433,7 +433,7 @@ async function getInboundLength(req, res) {
             querySql = `
                 SELECT COUNT(*) AS total_count
                 FROM custom_cdr_calls c
-                JOIN agent a ON c.destination_number = a.agentmobile  
+                JOIN agent a ON RIGHT(c.destination_number, 10) = a.agentmobile  
                 WHERE c.call_type = 'INBOUND';
             `;
         } else {
@@ -441,7 +441,7 @@ async function getInboundLength(req, res) {
             querySql = `
                 SELECT COUNT(*) AS total_count
                 FROM custom_cdr_calls c
-                JOIN agent a ON c.destination_number = a.agentmobile  
+                JOIN agent a ON RIGHT(c.destination_number, 10) = a.agentmobile  
                 WHERE a.manager_id = ? 
                 AND c.call_type = 'INBOUND';
             `;
@@ -479,7 +479,7 @@ async function getOutboundLength(req, res) {
             querySql = `
             SELECT COUNT(*) AS total_count
             FROM custom_cdr_calls c
-            JOIN agent a ON c.caller_id = a.agentmobile  
+            JOIN agent a ON RIGHT(c.caller_id, 10) = a.agentmobile  
             WHERE c.call_type = 'OUTBOUND';
         `;
         } else {
@@ -487,7 +487,7 @@ async function getOutboundLength(req, res) {
             querySql = `
             SELECT COUNT(*) AS total_count
             FROM custom_cdr_calls c
-            JOIN agent a ON c.caller_id = a.agentmobile  
+            JOIN agent a ON RIGHT(c.caller_id, 10) = a.agentmobile  
             WHERE a.manager_id = ? 
                 AND c.call_type = 'OUTBOUND';
             `;
@@ -528,9 +528,9 @@ async function getMissedLength(req, res) {
             SELECT COUNT(*) AS total_count
             FROM custom_cdr_calls c
             JOIN agent a ON (
-                (c.call_type = 'OUTBOUND' AND c.caller_id = a.agentmobile)
+                (c.call_type = 'OUTBOUND' AND RIGHT(c.caller_id, 10) = a.agentmobile)
                 OR
-                (c.call_type = 'INBOUND' AND c.destination_number = a.agentmobile)
+                (c.call_type = 'INBOUND' AND RIGHT(c.destination_number, 10) = a.agentmobile)
               )  
             WHERE c.overall_call_status = 'Missed';
               `;
@@ -539,9 +539,9 @@ async function getMissedLength(req, res) {
             SELECT COUNT(*) AS total_count
             FROM custom_cdr_calls c
             JOIN agent a ON (
-                (c.call_type = 'OUTBOUND' AND c.caller_id = a.agentmobile)
+                (c.call_type = 'OUTBOUND' AND RIGHT(c.caller_id, 10) = a.agentmobile)
                 OR
-                (c.call_type = 'INBOUND' AND c.destination_number = a.agentmobile)
+                (c.call_type = 'INBOUND' AND RIGHT(c.destination_number, 10) = a.agentmobile)
               )  
             WHERE a.manager_id = ?
             AND c.overall_call_status = 'Missed';
@@ -595,9 +595,9 @@ const getUniqueCalls = async (req, res) => {
                 ) AS rn
             FROM custom_cdr_calls c
             JOIN agent a ON (
-                (c.call_type = 'OUTBOUND' AND c.caller_id = a.agentmobile)
+                (c.call_type = 'OUTBOUND' AND RIGHT(c.caller_id, 10) = a.agentmobile)
                 OR
-                (c.call_type = 'INBOUND' AND c.destination_number = a.agentmobile)
+                (c.call_type = 'INBOUND' AND RIGHT(c.destination_number, 10) = a.agentmobile)
             )
             ${whereClauses.length > 0 ? `WHERE ${whereClauses.join(" AND ")}` : ""}
         ) AS sub

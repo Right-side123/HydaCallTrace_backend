@@ -223,14 +223,14 @@ const getCdrData = async (req, res) => {
     let filterCondition = "";
 
     if (filter === 'outbound') {
-        filterCondition = "(c.caller_id = a.agentmobile)";
+        filterCondition = "(RIGHT(c.caller_id, 10) = a.agentmobile)";
     } else if (filter === 'inbound') {
-        filterCondition = "(c.destination_number = a.agentmobile)";
+        filterCondition = "(RIGHT(c.destination_number, 10) = a.agentmobile)";
     } else if (filter === 'all') {
         filterCondition = `(
-            (c.caller_id = a.agentmobile)
+            (RIGHT(c.caller_id, 10) = a.agentmobile)
             OR
-            (c.destination_number = a.agentmobile)
+            (RIGHT(c.destination_number, 10) = a.agentmobile)
         )`;
     } else {
         return res.status(400).json({ error: 'Invalid filter provided' });
@@ -320,9 +320,9 @@ const getCdrData = async (req, res) => {
         END AS customer_number
             FROM custom_cdr_calls c
             JOIN agent a ON (
-                (c.call_type = 'OUTBOUND' AND c.caller_id = a.agentmobile)
+                (c.call_type = 'OUTBOUND' AND RIGHT(c.caller_id, 10) = a.agentmobile)
                 OR
-                (c.call_type = 'INBOUND' AND c.destination_number = a.agentmobile)
+                (c.call_type = 'INBOUND' AND RIGHT(c.destination_number, 10) = a.agentmobile)
             )
             WHERE ${whereClauses.join(" AND ")}
         `;
@@ -375,11 +375,11 @@ const getCdrDataSigletime = async (req, res) => {
     queryParams.push(queryStartDateTime, queryEndDateTime);
 
     if (filter === 'outbound') {
-        whereClauses.push("c.caller_id = a.agentmobile");
+        whereClauses.push("(RIGHT(c.caller_id, 10) = a.agentmobile)");
     } else if (filter === 'inbound') {
-        whereClauses.push("c.destination_number = a.agentmobile");
+        whereClauses.push("(RIGHT(c.destination_number, 10) = a.agentmobile)");
     } else if (filter === 'all') {
-        whereClauses.push("(c.caller_id = a.agentmobile OR c.destination_number = a.agentmobile)");
+        whereClauses.push("(RIGHT(c.caller_id, 10) = a.agentmobile OR RIGHT(c.destination_number, 10) = a.agentmobile)");
     }
 
     if (callStatus === 'ANSWERED') {
@@ -448,9 +448,9 @@ const getCdrDataSigletime = async (req, res) => {
                 ) AS rn
             FROM custom_cdr_calls c
             JOIN agent a ON (
-                (c.call_type = 'OUTBOUND' AND c.caller_id = a.agentmobile)
+                (c.call_type = 'OUTBOUND' AND RIGHT(c.caller_id, 10) = a.agentmobile)
                 OR
-                (c.call_type = 'INBOUND' AND c.destination_number = a.agentmobile)
+                (c.call_type = 'INBOUND' AND RIGHT(c.destination_number, 10) = a.agentmobile)
             )
             WHERE ${whereClauses.join(" AND ")}
         ) AS main

@@ -1,5 +1,8 @@
 const { query } = require('../config/db');
 
+const { pool } = require('../config/db');
+
+
 const postCdrData = async (req, res) => {
   try {
     const {
@@ -111,220 +114,220 @@ const postCdrData = async (req, res) => {
 // **********************************************************************************************************
 
 
-const insertCdr = async (req, res) => {
-  try {
-    const {
-      overall_call_status,
-      caller_id,
-      customer_name,
-      client_correlation_id,
-      caller_operator_name,
-      time,
-      caller_circle_name,
-      destination_circle_name,
-      pulse_count,
-      call_type,
-      caller_waiting_time,
-      destination_name,
-      duration,
-      destination_number_status,
-      billable_duration,
-      conversation_duration,
-      overall_call_duration,
-      customer_id,
-      start_time,
-      session_id,
-      destination_retry_count,
-      timestamp,
-      participant_address,
-      participant_type,
-      participant_number_type,
-      participant_number_country_code,
-      caller_id_type,
-      caller_id_circle,
-      caller_id_country_code,
-      participant_start_time,
-      participant_end_time,
-      participant_duration,
-      status,
-      participant_call_type,
-      participant_billable_duration,
-      participant_index,
-      request_name,
-      caller_id_international_point,
-      charge_type,
-      hangup_cause,
-      caller_retry_count,
-      destination_cli,
-      caller_duration,
-      date,
-      caller_number_status,
-      caller_status_detail,
-      destination_number,
-      dtmf_capture,
-      from_waiting_time,
-      destination_status_detail,
-      caller_name,
-      caller_number,
-      audios,
-      recording,
-      end_time,
-      destination_operator_name
-    } = req.body;
+// const insertCdr = async (req, res) => {
+//   try {
+//     const {
+//       overall_call_status,
+//       caller_id,
+//       customer_name,
+//       client_correlation_id,
+//       caller_operator_name,
+//       time,
+//       caller_circle_name,
+//       destination_circle_name,
+//       pulse_count,
+//       call_type,
+//       caller_waiting_time,
+//       destination_name,
+//       duration,
+//       destination_number_status,
+//       billable_duration,
+//       conversation_duration,
+//       overall_call_duration,
+//       customer_id,
+//       start_time,
+//       session_id,
+//       destination_retry_count,
+//       timestamp,
+//       participant_address,
+//       participant_type,
+//       participant_number_type,
+//       participant_number_country_code,
+//       caller_id_type,
+//       caller_id_circle,
+//       caller_id_country_code,
+//       participant_start_time,
+//       participant_end_time,
+//       participant_duration,
+//       status,
+//       participant_call_type,
+//       participant_billable_duration,
+//       participant_index,
+//       request_name,
+//       caller_id_international_point,
+//       charge_type,
+//       hangup_cause,
+//       caller_retry_count,
+//       destination_cli,
+//       caller_duration,
+//       date,
+//       caller_number_status,
+//       caller_status_detail,
+//       destination_number,
+//       dtmf_capture,
+//       from_waiting_time,
+//       destination_status_detail,
+//       caller_name,
+//       caller_number,
+//       audios,
+//       recording,
+//       end_time,
+//       destination_operator_name
+//     } = req.body;
 
 
-    const insertCdrQuery = `
-      INSERT INTO custom_cdr_calls (
-        overall_call_status,
-        caller_id,
-        customer_name,
-        client_correlation_id,
-        caller_operator_name,
-        time,
-        caller_circle_name,
-        destination_circle_name,
-        pulse_count,
-        call_type,
-        caller_waiting_time,
-        destination_name,
-        duration,
-        destination_number_status,
-        billable_duration,
-        conversation_duration,
-        overall_call_duration,
-        customer_id,
-        start_time,
-        session_id,
-        destination_retry_count,
-        timestamp,
-        participant_address,
-        participant_type,
-        participant_number_type,
-        participant_number_country_code,
-        caller_id_type,
-        caller_id_circle,
-        caller_id_country_code,
-        participant_start_time,
-        participant_end_time,
-        participant_duration,
-        status,
-        participant_call_type,
-        participant_billable_duration,
-        participant_index,
-        request_name,
-        caller_id_international_point,
-        charge_type,
-        hangup_cause,
-        caller_retry_count,
-        destination_cli,
-        caller_duration,
-        date,
-        caller_number_status,
-        caller_status_detail,
-        destination_number,
-        dtmf_capture,
-        from_waiting_time,
-        destination_status_detail,
-        caller_name,
-        caller_number,
-        audios,
-        recording,
-        end_time,
-        destination_operator_name) VALUES
-        (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-    `;
-    const requestCdrdata = [
-      overall_call_status,
-      caller_id,
-      customer_name,
-      client_correlation_id,
-      caller_operator_name,
-      time,
-      caller_circle_name,
-      destination_circle_name,
-      pulse_count,
-      call_type,
-      caller_waiting_time,
-      destination_name,
-      duration,
-      destination_number_status,
-      billable_duration,
-      conversation_duration,
-      overall_call_duration,
-      customer_id,
-      start_time,
-      session_id,
-      destination_retry_count,
-      timestamp,
-      participant_address,
-      participant_type,
-      participant_number_type,
-      participant_number_country_code,
-      caller_id_type,
-      caller_id_circle,
-      caller_id_country_code,
-      participant_start_time,
-      participant_end_time,
-      participant_duration,
-      status,
-      participant_call_type,
-      participant_billable_duration,
-      participant_index,
-      request_name,
-      caller_id_international_point,
-      charge_type,
-      hangup_cause,
-      caller_retry_count,
-      destination_cli,
-      caller_duration,
-      date,
-      caller_number_status,
-      caller_status_detail,
-      destination_number,
-      dtmf_capture,
-      from_waiting_time,
-      destination_status_detail,
-      caller_name,
-      caller_number,
-      audios,
-      recording,
-      end_time,
-      destination_operator_name
-    ];
+//     const insertCdrQuery = `
+//       INSERT INTO custom_cdr_calls (
+//         overall_call_status,
+//         caller_id,
+//         customer_name,
+//         client_correlation_id,
+//         caller_operator_name,
+//         time,
+//         caller_circle_name,
+//         destination_circle_name,
+//         pulse_count,
+//         call_type,
+//         caller_waiting_time,
+//         destination_name,
+//         duration,
+//         destination_number_status,
+//         billable_duration,
+//         conversation_duration,
+//         overall_call_duration,
+//         customer_id,
+//         start_time,
+//         session_id,
+//         destination_retry_count,
+//         timestamp,
+//         participant_address,
+//         participant_type,
+//         participant_number_type,
+//         participant_number_country_code,
+//         caller_id_type,
+//         caller_id_circle,
+//         caller_id_country_code,
+//         participant_start_time,
+//         participant_end_time,
+//         participant_duration,
+//         status,
+//         participant_call_type,
+//         participant_billable_duration,
+//         participant_index,
+//         request_name,
+//         caller_id_international_point,
+//         charge_type,
+//         hangup_cause,
+//         caller_retry_count,
+//         destination_cli,
+//         caller_duration,
+//         date,
+//         caller_number_status,
+//         caller_status_detail,
+//         destination_number,
+//         dtmf_capture,
+//         from_waiting_time,
+//         destination_status_detail,
+//         caller_name,
+//         caller_number,
+//         audios,
+//         recording,
+//         end_time,
+//         destination_operator_name) VALUES
+//         (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+//     `;
+//     const requestCdrdata = [
+//       overall_call_status,
+//       caller_id,
+//       customer_name,
+//       client_correlation_id,
+//       caller_operator_name,
+//       time,
+//       caller_circle_name,
+//       destination_circle_name,
+//       pulse_count,
+//       call_type,
+//       caller_waiting_time,
+//       destination_name,
+//       duration,
+//       destination_number_status,
+//       billable_duration,
+//       conversation_duration,
+//       overall_call_duration,
+//       customer_id,
+//       start_time,
+//       session_id,
+//       destination_retry_count,
+//       timestamp,
+//       participant_address,
+//       participant_type,
+//       participant_number_type,
+//       participant_number_country_code,
+//       caller_id_type,
+//       caller_id_circle,
+//       caller_id_country_code,
+//       participant_start_time,
+//       participant_end_time,
+//       participant_duration,
+//       status,
+//       participant_call_type,
+//       participant_billable_duration,
+//       participant_index,
+//       request_name,
+//       caller_id_international_point,
+//       charge_type,
+//       hangup_cause,
+//       caller_retry_count,
+//       destination_cli,
+//       caller_duration,
+//       date,
+//       caller_number_status,
+//       caller_status_detail,
+//       destination_number,
+//       dtmf_capture,
+//       from_waiting_time,
+//       destination_status_detail,
+//       caller_name,
+//       caller_number,
+//       audios,
+//       recording,
+//       end_time,
+//       destination_operator_name
+//     ];
 
-    const result = await query(insertCdrQuery, requestCdrdata);
+//     const result = await query(insertCdrQuery, requestCdrdata);
 
-    const insertId = result.insertId;
+//     const insertId = result.insertId;
 
-    const fetchQuery = `SELECT * FROM custom_cdr_calls WHERE id = ?`;
-    const insertedData = await query(fetchQuery, [insertId]);
-    const fixedData = JSON.parse(JSON.stringify(insertedData[0], (key, value) =>
-      typeof value === "bigint" ? value.toString() : value
-    ));
+//     const fetchQuery = `SELECT * FROM custom_cdr_calls WHERE id = ?`;
+//     const insertedData = await query(fetchQuery, [insertId]);
+//     const fixedData = JSON.parse(JSON.stringify(insertedData[0], (key, value) =>
+//       typeof value === "bigint" ? value.toString() : value
+//     ));
 
-    res.status(201).json({
-      Status: "Success",
-      message: "Data inserted successfully",
-      insertedData: fixedData
-    });
+//     res.status(201).json({
+//       Status: "Success",
+//       message: "Data inserted successfully",
+//       insertedData: fixedData
+//     });
 
-  } catch (error) {
-    console.error('Error inserting data:', error);
-    if (error.sqlMessage) {
-      return res.status(400).json({
-        Status: "Error",
-        message: error.sqlMessage,
-        data: req.body
-      });
-    }
+//   } catch (error) {
+//     console.error('Error inserting data:', error);
+//     if (error.sqlMessage) {
+//       return res.status(400).json({
+//         Status: "Error",
+//         message: error.sqlMessage,
+//         data: req.body
+//       });
+//     }
 
-    res.status(500).json({
-      Status: "Error",
-      message: "Internal Server Error",
-      data: req.body
-    });
-  }
-};
+//     res.status(500).json({
+//       Status: "Error",
+//       message: "Internal Server Error",
+//       data: req.body
+//     });
+//   }
+// };
 
 //   **********************************************     Agent Post   ****************
 
@@ -505,6 +508,165 @@ const updateAgent = async (req, res) => {
       message: "Internal Server Error",
       error: error.message
     });
+  }
+};
+
+
+const insertCdr = async (req, res) => {
+  const connection = await pool.getConnection();
+
+  try {
+    await connection.beginTransaction();
+
+    const {
+      Overall_Call_Status,
+      Caller_ID,
+      Customer_Name,
+      Client_Correlation_Id,
+      Caller_Operator_Name,
+      Time,
+      Caller_Circle_Name,
+      Destination_Circle_Name,
+      Pulse_Count,
+      callType,
+      Caller_Waiting_Time,
+      Destination_Name,
+      duration,
+      Billable_Duration,
+      conversationDuration,
+      Overall_Call_Duration,
+      customerId,
+      overallCallStatus,
+      startTime,
+      Session_ID,
+      Destination_Retry_Count,
+      Caller_Status,
+      Destination_Status,
+      timestamp,
+      Conversation_Duration,
+      Hangup_Cause,
+      callerNumber,
+      Caller_Retry_Count,
+      Destination_CLI,
+      Missed_Destination_Number,
+      Caller_Duration,
+      Date,
+      Caller_Status_Detail,
+      DTMF_Capture,
+      destinationNumber,
+      fromWaitingTime,
+      Call_Type,
+      Destination_Status_Detail,
+      Caller_Name,
+      Caller_Number,
+      Recording,
+      endTime,
+      Destination_Number,
+      Destination_Operator_Name
+    } = req.body;
+
+
+    const formatDate = (inputDate) => {
+      if (!inputDate) return null;
+      const [day, month, year] = inputDate.split('/');
+      return `${year}-${month}-${day}`;
+    };
+    const formattedDate = formatDate(Date);
+
+    const callInsertQuery = `
+      INSERT INTO callsrecord (
+        Overall_Call_Status, Caller_ID, Customer_Name, Client_Correlation_Id, Caller_Operator_Name, Time,
+        Caller_Circle_Name, Destination_Circle_Name, Pulse_Count, callType, Caller_Waiting_Time, Destination_Name,
+        duration, Billable_Duration, conversationDuration, Overall_Call_Duration, customerId, overallCallStatus,
+        startTime, Session_ID, Destination_Retry_Count, Caller_Status, Destination_Status, timestamp,
+        Conversation_Duration, Hangup_Cause, callerNumber, Caller_Retry_Count, Destination_CLI, Missed_Destination_Number,
+        Caller_Duration, Date, Caller_Status_Detail, DTMF_Capture, destinationNumber, fromWaitingTime, Call_Type,
+        Destination_Status_Detail, Caller_Name, Caller_Number, Recording, endTime, Destination_Number, Destination_Operator_Name
+      ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+    `;
+
+    const callValues = [
+      Overall_Call_Status, Caller_ID, Customer_Name, Client_Correlation_Id, Caller_Operator_Name, Time,
+      Caller_Circle_Name, Destination_Circle_Name, Pulse_Count, callType, Caller_Waiting_Time, Destination_Name,
+      duration, Billable_Duration, conversationDuration, Overall_Call_Duration, customerId, overallCallStatus,
+      startTime, Session_ID, Destination_Retry_Count, Caller_Status, Destination_Status, timestamp,
+      Conversation_Duration, Hangup_Cause, callerNumber, Caller_Retry_Count, Destination_CLI, Missed_Destination_Number,
+      Caller_Duration, formattedDate, Caller_Status_Detail, DTMF_Capture, destinationNumber, fromWaitingTime, Call_Type,
+      Destination_Status_Detail, Caller_Name, Caller_Number, Recording, endTime, Destination_Number, Destination_Operator_Name
+    ];
+
+    const callResult = await connection.query(callInsertQuery, callValues);
+    const callId = callResult.insertId;
+
+    if (req.body.participants && Array.isArray(req.body.participants)) {
+      for (const p of req.body.participants) {
+        const participantResult = await connection.query(`
+          INSERT INTO participants (
+            call_id, participantAddress, participantType, participantNumberType,
+            participantNumberCountryCode, callerIdType, callerIdCircle, callerIdCountryCode,
+            callerId, startTime, endTime, duration, status, hangupCause, audios,
+            participantCallType, billableDuration, pulse, requestNo, participantIndex,
+            requestName, mergeType, callerIdInternationalPoint, chargeType
+          ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        `, [
+          Session_ID,
+          p.participantAddress,
+          p.participantType,
+          p.participantNumberType,
+          p.participantNumberCountryCode,
+          p.callerIdType,
+          p.callerIdCircle,
+          p.callerIdCountryCode,
+          p.callerId,
+          p.startTime,
+          p.endTime,
+          p.duration,
+          p.status,
+          p.hangupCause,
+          JSON.stringify(p.audios),
+          p.participantCallType,
+          p.billableDuration,
+          p.pulse,
+          p.requestNo,
+          p.participantIndex,
+          p.requestName,
+          p.mergeType,
+          p.callerIdInternationalPoint,
+          p.chargeType
+        ]);
+
+        const participantId = participantResult.insertId;
+
+
+        if (Array.isArray(p.audios)) {
+          for (const audio of p.audios) {
+            await connection.query(`
+              INSERT INTO audios (participant_id, audioURL) VALUES (?, ?)
+            `, [participantId, audio.audioURL]);
+          }
+        }
+      }
+    }
+
+    await connection.commit();
+
+    res.status(201).json({
+      Status: "Success",
+      message: "Data inserted successfully",
+      call_id: String(callId)
+    });
+
+
+  } catch (error) {
+    await connection.rollback();
+    console.error("Insert Error:", error);
+
+    res.status(500).json({
+      Status: "Error",
+      message: error.message,
+    });
+  } finally {
+    connection.release();
   }
 };
 

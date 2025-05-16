@@ -550,7 +550,7 @@ const insertCdr = async (req, res) => {
       Destination_CLI,
       Missed_Destination_Number,
       Caller_Duration,
-      Date,
+      Date: inputDate,
       Caller_Status_Detail,
       DTMF_Capture,
       destinationNumber,
@@ -571,7 +571,22 @@ const insertCdr = async (req, res) => {
       const [day, month, year] = inputDate.split('/');
       return `${year}-${month}-${day}`;
     };
-    const formattedDate = formatDate(Date);
+
+    // ⭐ Use inputDate instead of Date
+    const formattedDate = formatDate(inputDate);
+
+     // Add +5:30 to timestamp
+    let formattedTimestamp = null;
+if (timestamp) {
+  // Agar timestamp already 'YYYY-MM-DD HH:mm:ss' format me hai, toh use as is
+  if (typeof timestamp === 'string' && timestamp.includes(' ')) {
+    formattedTimestamp = timestamp;
+  } else {
+    const original = new Date(timestamp);
+    const istTime = new Date(original.getTime() + (5.5 * 60 * 60 * 1000));
+    formattedTimestamp = istTime.toISOString().slice(0, 19).replace('T', ' ');
+  }
+}
 
     const callInsertQuery = `
       INSERT INTO callsrecord (
@@ -589,7 +604,7 @@ const insertCdr = async (req, res) => {
       Overall_Call_Status, Caller_ID, Customer_Name, Client_Correlation_Id, Caller_Operator_Name, Time,
       Caller_Circle_Name, Destination_Circle_Name, Pulse_Count, callType, Caller_Waiting_Time, Destination_Name,
       duration, Billable_Duration, conversationDuration, Overall_Call_Duration, customerId, overallCallStatus,
-      startTime, Session_ID, Destination_Retry_Count, Caller_Status, Destination_Status, timestamp,
+      startTime, Session_ID, Destination_Retry_Count, Caller_Status, Destination_Status, formattedTimestamp,
       Conversation_Duration, Hangup_Cause, callerNumber, Caller_Retry_Count, Destination_CLI, Missed_Destination_Number,
       Caller_Duration, formattedDate, Caller_Status_Detail, DTMF_Capture, destinationNumber, fromWaitingTime, Call_Type,
       Destination_Status_Detail, Caller_Name, Caller_Number, Recording, endTime, Destination_Number, Destination_Operator_Name

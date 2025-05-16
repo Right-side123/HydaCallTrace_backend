@@ -575,18 +575,25 @@ const insertCdr = async (req, res) => {
     // ⭐ Use inputDate instead of Date
     const formattedDate = formatDate(inputDate);
 
-     // Add +5:30 to timestamp
+    // Add +5:30 to timestamp
+
     let formattedTimestamp = null;
-if (timestamp) {
-  // Agar timestamp already 'YYYY-MM-DD HH:mm:ss' format me hai, toh use as is
-  if (typeof timestamp === 'string' && timestamp.includes(' ')) {
-    formattedTimestamp = timestamp;
-  } else {
-    const original = new Date(timestamp);
-    const istTime = new Date(original.getTime() + (5.5 * 60 * 60 * 1000));
-    formattedTimestamp = istTime.toISOString().slice(0, 19).replace('T', ' ');
-  }
-}
+
+    if (timestamp) {
+      // Manual parsing "YYYY-MM-DD HH:mm:ss"
+      const [datePart, timePart] = timestamp.split(' ');
+      const [year, month, day] = datePart.split('-').map(Number);
+      const [hour, minute, second] = timePart.split(':').map(Number);
+
+      // Create date in UTC
+      const utcDate = new Date(Date.UTC(year, month - 1, day, hour, minute, second));
+
+      // Add 5 hours 30 minutes (IST)
+      const istDate = new Date(utcDate.getTime() + (5.5 * 60 * 60 * 1000));
+
+      // Format as "YYYY-MM-DD HH:mm:ss"
+      formattedTimestamp = istDate.toISOString().slice(0, 19).replace('T', ' ');
+    }
 
     const callInsertQuery = `
       INSERT INTO callsrecord (

@@ -285,6 +285,9 @@ const getCdrData = async (req, res) => {
                 a.agentname,
                 a.agentmobile,
                 c.Caller_ID,
+                c.Caller_Status,
+                p.calleridType,
+                p.callerIdCircle,
                 c.Customer_Name,
                 c.Client_Correlation_Id,
                 c.Caller_Operator_Name,
@@ -297,14 +300,19 @@ const getCdrData = async (req, res) => {
                 c.Overall_Call_Duration,
                 c.customerId,
                 c.startTime,
-                c.hangup_cause,
+                c.Hangup_Cause,
                 c.Caller_Duration,
-                c.date,
+                DATE_FORMAT(c.date, '%Y-%m-%d') AS date,
                 c.Destination_Number,
                 c.fromWaitingTime,
                 c.Recording,
                 c.endTime,
                 c.Destination_Operator_Name,
+                c.Destination_Status,
+                p.participantAddress,
+                p.participantType,
+                p.participantNumberType,
+
                 CASE
                     WHEN c.Call_Type = 'OUTBOUND' THEN c.Destination_Number
                     WHEN c.Call_Type = 'INBOUND' THEN c.Caller_Number
@@ -315,6 +323,7 @@ const getCdrData = async (req, res) => {
                 OR
                 (c.Call_Type = 'INBOUND' AND RIGHT(c.Destination_Number, 10) = RIGHT(a.agentmobile, 10))
             )
+                JOIN participants p ON p.call_id = c.Session_ID
             WHERE ${whereClauses.join(" AND ")}
         `;
 
@@ -380,20 +389,20 @@ const getCdrDataSigletime = async (req, res) => {
     whereClauses.push("c.timestamp BETWEEN ? AND ?");
     queryParams.push(queryStartDateTime, queryEndDateTime);
 
-    if (filter === 'outbound') {
-        whereClauses.push("(RIGHT(c.caller_id, 10) = a.agentmobile)");
-    } else if (filter === 'inbound') {
-        whereClauses.push("(RIGHT(c.destination_number, 10) = a.agentmobile)");
+    if (filter === 'OUTBOUND') {
+        whereClauses.push("(RIGHT(c.Caller_Number, 10) = a.agentmobile)");
+    } else if (filter === 'INBOUND') {
+        whereClauses.push("(RIGHT(c.Destination_Number, 10) = a.agentmobile)");
     } else if (filter === 'all') {
-        whereClauses.push("(RIGHT(c.caller_id, 10) = a.agentmobile OR RIGHT(c.destination_number, 10) = a.agentmobile)");
+        whereClauses.push("(RIGHT(c.Caller_Number, 10) = a.agentmobile OR RIGHT(c.Destination_Number, 10) = a.agentmobile)");
     }
 
     if (callStatus === 'ANSWERED') {
-        whereClauses.push("c.overall_call_status = 'ANSWERED'");
+        whereClauses.push("c.Overall_Call_Status = 'Answered'");
     } else if (callStatus === 'Missed') {
-        whereClauses.push("c.overall_call_status = 'Missed'");
+        whereClauses.push("c.Overall_Call_Status = 'Missed'");
     } else if (callStatus === 'all') {
-        whereClauses.push("(c.overall_call_status = 'ANSWERED' OR c.overall_call_status = 'Missed')");
+        whereClauses.push("(c.Overall_Call_Status = 'Answered' OR c.Overall_Call_Status = 'Missed')");
     }
 
     if (agent) {
@@ -406,58 +415,58 @@ const getCdrDataSigletime = async (req, res) => {
         FROM (
             SELECT 
                 c.timestamp,
-                c.call_type,
-                c.overall_call_status,
+                c.Call_Type,
+                c.Overall_Call_Status,
                 a.agentname,
                 a.agentmobile,
-                c.caller_id,
-                c.customer_name,
-                c.client_correlation_id,
-                c.caller_operator_name,
-                c.time,
-                c.caller_circle_name,
-                c.destination_circle_name,
-                c.destination_name,
+                c.Caller_ID,
+                c.Caller_Status,
+                p.calleridType,
+                p.callerIdCircle,
+                c.Customer_Name,
+                c.Client_Correlation_Id,
+                c.Caller_Operator_Name,
+                c.Time,
+                c.Caller_Circle_Name,
+                c.Destination_Circle_Name,
+                c.Destination_Name,
                 c.duration,
-                c.destination_number_status,
-                c.conversation_duration,
-                c.overall_call_duration,
-                c.customer_id,
-                c.start_time,
-                c.participant_address,
-                c.participant_number_type,
-                c.caller_id_type,
-                c.caller_id_circle,
-                c.participant_start_time,
-                c.participant_end_time,
-                c.participant_duration,
-                c.hangup_cause,
-                c.caller_duration,
-                c.date,
-                c.caller_number_status,
-                c.destination_number,
-                c.from_waiting_time,
-                c.recording,
-                c.end_time,
-                c.destination_operator_name,
+                c.conversationDuration,
+                c.Overall_Call_Duration,
+                c.customerId,
+                c.startTime,
+                c.Hangup_Cause,
+                c.Caller_Duration,
+                DATE_FORMAT(c.date, '%Y-%m-%d') AS date,
+                c.Destination_Number,
+                c.fromWaitingTime,
+                c.Recording,
+                c.endTime,
+                c.Destination_Operator_Name,
+                c.Destination_Status,
+                p.participantAddress,
+                p.participantType,
+                p.participantNumberType,
+
                 CASE
-                    WHEN c.call_type = 'OUTBOUND' THEN c.destination_number
-                    WHEN c.call_type = 'INBOUND' THEN c.caller_id
+                    WHEN c.Call_Type = 'OUTBOUND' THEN c.Destination_Number
+                    WHEN c.Call_Type = 'INBOUND' THEN c.Caller_Number
                 END AS customer_number,
                 ROW_NUMBER() OVER (
                     PARTITION BY 
                         CASE
-                            WHEN c.call_type = 'OUTBOUND' THEN c.destination_number
-                            WHEN c.call_type = 'INBOUND' THEN c.caller_id
+                            WHEN c.Call_Type = 'OUTBOUND' THEN c.Destination_Number
+                            WHEN c.Call_Type = 'INBOUND' THEN c.Caller_Number
                         END
                     ORDER BY c.timestamp DESC
                 ) AS rn
-            FROM custom_cdr_calls c
+            FROM callsrecord c
             JOIN agent a ON (
-                (c.call_type = 'OUTBOUND' AND RIGHT(c.caller_id, 10) = a.agentmobile)
+                (c.Call_Type = 'OUTBOUND' AND RIGHT(c.Caller_Number, 10) = a.agentmobile)
                 OR
-                (c.call_type = 'INBOUND' AND RIGHT(c.destination_number, 10) = a.agentmobile)
+                (c.Call_Type = 'INBOUND' AND RIGHT(c.Destination_Number, 10) = a.agentmobile)
             )
+                JOIN participants p ON p.call_id = c.Session_ID
             WHERE ${whereClauses.join(" AND ")}
         ) AS main
         WHERE main.rn = 1

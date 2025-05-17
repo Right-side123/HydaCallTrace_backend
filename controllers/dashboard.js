@@ -378,22 +378,22 @@ async function getCustomcdrLength(req, res) {
 
             querySql = `
                 SELECT COUNT(*) AS total_count
-                FROM custom_cdr_calls c
+                FROM callsrecord c
                 JOIN agent a ON (
-                (c.call_type = 'OUTBOUND' AND RIGHT(c.caller_id, 10) = a.agentmobile)
+                (c.Call_Type = 'OUTBOUND' AND RIGHT(c.Caller_Number, 10) = a.agentmobile)
                 OR
-                (c.call_type = 'INBOUND' AND RIGHT(c.destination_number, 10) = a.agentmobile)
+                (c.Call_Type = 'INBOUND' AND RIGHT(c.Destination_Number, 10) = a.agentmobile)
             )
             `;
         } else {
 
             querySql = `
                 SELECT COUNT(*) AS total_count
-                FROM custom_cdr_calls c
+                FROM callsrecord c
                 JOIN agent a ON (
-                (c.call_type = 'OUTBOUND' AND RIGHT(c.caller_id, 10) = a.agentmobile)
+                (c.Call_Type = 'OUTBOUND' AND RIGHT(c.Caller_Number, 10) = a.agentmobile)
                 OR
-                (c.call_type = 'INBOUND' AND RIGHT(c.destination_number, 10) = a.agentmobile)
+                (c.Call_Type = 'INBOUND' AND RIGHT(c.Destination_Number, 10) = a.agentmobile)
             )
                 WHERE a.manager_id = ?
             `;
@@ -432,18 +432,18 @@ async function getInboundLength(req, res) {
 
             querySql = `
                 SELECT COUNT(*) AS total_count
-                FROM custom_cdr_calls c
-                JOIN agent a ON RIGHT(c.destination_number, 10) = a.agentmobile  
-                WHERE c.call_type = 'INBOUND';
+                FROM callsrecord c
+                JOIN agent a ON RIGHT(c.Destination_Number, 10) = a.agentmobile  
+                WHERE c.Call_Type = 'INBOUND';
             `;
         } else {
 
             querySql = `
                 SELECT COUNT(*) AS total_count
-                FROM custom_cdr_calls c
-                JOIN agent a ON RIGHT(c.destination_number, 10) = a.agentmobile  
+                FROM callsrecord c
+                JOIN agent a ON RIGHT(c.Destination_Number, 10) = a.agentmobile  
                 WHERE a.manager_id = ? 
-                AND c.call_type = 'INBOUND';
+                AND c.Call_Type = 'INBOUND';
             `;
             queryParams.push(manager_id);
         }
@@ -478,18 +478,18 @@ async function getOutboundLength(req, res) {
         if (manager_id == 1) {
             querySql = `
             SELECT COUNT(*) AS total_count
-            FROM custom_cdr_calls c
-            JOIN agent a ON RIGHT(c.caller_id, 10) = a.agentmobile  
-            WHERE c.call_type = 'OUTBOUND';
+            FROM callsrecord c
+            JOIN agent a ON RIGHT(c.Caller_Number, 10) = a.agentmobile  
+            WHERE c.Call_Type = 'OUTBOUND';
         `;
         } else {
 
             querySql = `
             SELECT COUNT(*) AS total_count
-            FROM custom_cdr_calls c
-            JOIN agent a ON RIGHT(c.caller_id, 10) = a.agentmobile  
+            FROM callsrecord c
+            JOIN agent a ON RIGHT(c.Caller_Number, 10) = a.agentmobile  
             WHERE a.manager_id = ? 
-                AND c.call_type = 'OUTBOUND';
+                AND c.Call_Type = 'OUTBOUND';
             `;
             queryParams.push(manager_id);
 
@@ -526,25 +526,25 @@ async function getMissedLength(req, res) {
         if (manager_id == 1) {
             querySql = `
             SELECT COUNT(*) AS total_count
-            FROM custom_cdr_calls c
+            FROM callsrecord c
             JOIN agent a ON (
-                (c.call_type = 'OUTBOUND' AND RIGHT(c.caller_id, 10) = a.agentmobile)
+                (c.Call_Type = 'OUTBOUND' AND RIGHT(c.Caller_Number, 10) = a.agentmobile)
                 OR
-                (c.call_type = 'INBOUND' AND RIGHT(c.destination_number, 10) = a.agentmobile)
+                (c.Call_Type = 'INBOUND' AND RIGHT(c.Destination_Number, 10) = a.agentmobile)
               )  
-            WHERE c.overall_call_status = 'Missed';
+            WHERE c.Overall_Call_Status = 'Missed';
               `;
         } else {
             querySql = `
             SELECT COUNT(*) AS total_count
-            FROM custom_cdr_calls c
+            FROM callsrecord c
             JOIN agent a ON (
-                (c.call_type = 'OUTBOUND' AND RIGHT(c.caller_id, 10) = a.agentmobile)
+                (c.Call_Type = 'OUTBOUND' AND RIGHT(c.Caller_Number, 10) = a.agentmobile)
                 OR
-                (c.call_type = 'INBOUND' AND RIGHT(c.destination_number, 10) = a.agentmobile)
+                (c.Call_Type = 'INBOUND' AND RIGHT(c.Destination_number, 10) = a.agentmobile)
               )  
             WHERE a.manager_id = ?
-            AND c.overall_call_status = 'Missed';
+            AND c.Overall_Call_Status = 'Missed';
               `;
 
             queryParams.push(manager_id);
@@ -588,16 +588,16 @@ const getUniqueCalls = async (req, res) => {
                 ROW_NUMBER() OVER (
                     PARTITION BY 
                         CASE
-                            WHEN c.call_type = 'OUTBOUND' THEN c.destination_number
-                            WHEN c.call_type = 'INBOUND' THEN c.caller_id
+                            WHEN c.Call_Type = 'OUTBOUND' THEN c.Destination_Number
+                            WHEN c.Call_Type = 'INBOUND' THEN c.Caller_Number
                         END
                     ORDER BY c.timestamp DESC
                 ) AS rn
-            FROM custom_cdr_calls c
+            FROM callsrecord c
             JOIN agent a ON (
-                (c.call_type = 'OUTBOUND' AND RIGHT(c.caller_id, 10) = a.agentmobile)
+                (c.Call_Type = 'OUTBOUND' AND RIGHT(c.Caller_Number, 10) = a.agentmobile)
                 OR
-                (c.call_type = 'INBOUND' AND RIGHT(c.destination_number, 10) = a.agentmobile)
+                (c.Call_Type = 'INBOUND' AND RIGHT(c.Destination_Number, 10) = a.agentmobile)
             )
             ${whereClauses.length > 0 ? `WHERE ${whereClauses.join(" AND ")}` : ""}
         ) AS sub

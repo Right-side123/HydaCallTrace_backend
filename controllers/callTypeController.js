@@ -158,7 +158,7 @@ const { query } = require('../config/db');
 //             FROM customcdr c
 
 //             JOIN rs_agentmobile a ON c.agent = a.agentmobile
-           
+
 //             WHERE c.call_datetime BETWEEN ? AND ?
 //               AND c.calltype = 'Outbound';
 //             `;
@@ -186,7 +186,7 @@ const { query } = require('../config/db');
 //             FROM customcdr c
 
 //             JOIN rs_agentmobile a ON c.agent = a.agentmobile
-           
+
 //             WHERE a.manager_id = ?
 //             AND c.call_datetime BETWEEN ? AND ?
 //               AND c.calltype = 'Outbound';
@@ -253,7 +253,7 @@ const { query } = require('../config/db');
 //             FROM customcdr c
 
 //             JOIN rs_agentmobile a ON c.agent = a.agentmobile
-           
+
 //             WHERE c.call_datetime BETWEEN ? AND ?
 //               AND c.calltype = 'Incomming Call';
 //         `;
@@ -281,7 +281,7 @@ const { query } = require('../config/db');
 //             FROM customcdr c
 
 //             JOIN rs_agentmobile a ON c.agent = a.agentmobile
-           
+
 //             WHERE a.manager_id = ?
 //             AND c.call_datetime BETWEEN ? AND ?
 //               AND c.calltype = 'Incomming Call';
@@ -331,102 +331,113 @@ const getOutboundCdrData = async (req, res) => {
             querySql = `
             SELECT 
                 c.timestamp,
-                c.call_type,
-                c.overall_call_status,
+                c.Call_Type,
+                c.Overall_Call_Status,
                 a.agentname,
                 a.agentmobile,
-                c.caller_id,
-                c.customer_name,
-                c.client_correlation_id,
-                c.caller_operator_name,
-                c.time,
-                c.caller_circle_name,
-                c.destination_circle_name,
-                c.destination_name,
+                c.Caller_Number,
+                c.Caller_ID,
+                c.Caller_Status,
+                p.calleridType,
+                p.callerIdCircle,
+                c.Customer_Name,
+                c.Client_Correlation_Id,
+                c.Caller_Operator_Name,
+                c.Time,
+                c.Caller_Circle_Name,
+                c.Destination_Circle_Name,
+                c.Destination_Name,
                 c.duration,
-                c.destination_number_status,
-                c.conversation_duration,
-                c.overall_call_duration,
-                c.customer_id,
-                c.start_time,
-                c.participant_address,
-                c.participant_number_type,
-                c.caller_id_type,
-                c.caller_id_circle,
-                c.participant_start_time,
-                c.participant_end_time,
-                c.participant_duration,
-                c.hangup_cause,
-                c.caller_duration,
-                c.date,
-                c.caller_number_status,
-                c.destination_number,
-                c.from_waiting_time,
-                c.recording,
-                c.end_time,
-                c.destination_operator_name
+                c.conversationDuration,
+                c.Overall_Call_Duration,
+                c.customerId,
+                c.startTime,
+                c.Hangup_Cause,
+                c.Caller_Duration,
+                DATE_FORMAT(c.date, '%Y-%m-%d') AS date,
+                c.Destination_Number,
+                c.fromWaitingTime,
+                c.Recording,
+                c.endTime,
+                c.Destination_Operator_Name,
+                c.Destination_Status,
+                p.participantAddress,
+                p.participantType,
+                p.participantNumberType
 
+            FROM callsrecord c
 
-            FROM custom_cdr_calls c
+            JOIN agent a ON RIGHT(c.Caller_Number, 10) = a.agentmobile
 
-            JOIN agent a ON RIGHT(c.caller_id, 10) = a.agentmobile
+            JOIN participants p ON p.call_id = c.Session_ID
            
             WHERE c.timestamp BETWEEN ? AND ?
-              AND c.call_type = 'OUTBOUND';
+              AND c.Call_Type = 'OUTBOUND';
             `;
         } else {
             querySql = `
             SELECT 
                 c.timestamp,
-                c.call_type,
-                c.overall_call_status,
+                c.Call_Type,
+                c.Overall_Call_Status,
                 a.agentname,
                 a.agentmobile,
-                c.caller_id,
-                c.customer_name,
-                c.client_correlation_id,
-                c.caller_operator_name,
-                c.time,
-                c.caller_circle_name,
-                c.destination_circle_name,
-                c.destination_name,
+                c.Caller_Number,
+                c.Caller_ID,
+                c.Caller_Status,
+                p.calleridType,
+                p.callerIdCircle,
+                c.Customer_Name,
+                c.Client_Correlation_Id,
+                c.Caller_Operator_Name,
+                c.Time,
+                c.Caller_Circle_Name,
+                c.Destination_Circle_Name,
+                c.Destination_Name,
                 c.duration,
-                c.destination_number_status,
-                c.conversation_duration,
-                c.overall_call_duration,
-                c.customer_id,
-                c.start_time,
-                c.participant_address,
-                c.participant_number_type,
-                c.caller_id_type,
-                c.caller_id_circle,
-                c.participant_start_time,
-                c.participant_end_time,
-                c.participant_duration,
-                c.hangup_cause,
-                c.caller_duration,
-                c.date,
-                c.caller_number_status,
-                c.destination_number,
-                c.from_waiting_time,
-                c.recording,
-                c.end_time,
-                c.destination_operator_name
+                c.conversationDuration,
+                c.Overall_Call_Duration,
+                c.customerId,
+                c.startTime,
+                c.Hangup_Cause,
+                c.Caller_Duration,
+                DATE_FORMAT(c.date, '%Y-%m-%d') AS date,
+                c.Destination_Number,
+                c.fromWaitingTime,
+                c.Recording,
+                c.endTime,
+                c.Destination_Operator_Name,
+                c.Destination_Status,
+                p.participantAddress,
+                p.participantType,
+                p.participantNumberType
         
-            FROM custom_cdr_calls c
+            FROM callsrecord c
 
-            JOIN agent a ON RIGHT(c.caller_id, 10) = a.agentmobile
+            JOIN agent a ON RIGHT(c.Caller_Number, 10) = a.agentmobile
+
+            JOIN participants p ON p.call_id = c.Session_ID
            
             WHERE a.manager_id = ?
             AND c.timestamp BETWEEN ? AND ?
-              AND c.call_type = 'OUTBOUND';
+              AND c.Call_Type = 'OUTBOUND';
               `;
             queryParams.unshift(manager_id);
         }
 
         const cdrData = await query(querySql, queryParams);
 
-        return res.json({ manager_id, cdr_data: cdrData });
+
+        const formattedData = cdrData.map(row =>
+            Object.fromEntries(
+                Object.entries(row).map(([key, value]) => [
+                    key,
+                    typeof value === 'bigint' ? value.toString() : value
+                ])
+            )
+        );
+
+        return res.json({ manager_id, cdr_data: formattedData });
 
     } catch (err) {
         console.error('Error fetching outbound CDR data:', err);
@@ -461,95 +472,97 @@ const getInboundCdrData = async (req, res) => {
 
             querySql = `
             SELECT 
-               c.timestamp,
-                c.call_type,
-                c.overall_call_status,
+                c.timestamp,
+                c.Call_Type,
+                c.Overall_Call_Status,
                 a.agentname,
                 a.agentmobile,
-                c.caller_id,
-                c.customer_name,
-                c.client_correlation_id,
-                c.caller_operator_name,
-                c.time,
-                c.caller_circle_name,
-                c.destination_circle_name,
-                c.destination_name,
+                c.Caller_Number,
+                c.Caller_ID,
+                c.Caller_Status,
+                p.calleridType,
+                p.callerIdCircle,
+                c.Customer_Name,
+                c.Client_Correlation_Id,
+                c.Caller_Operator_Name,
+                c.Time,
+                c.Caller_Circle_Name,
+                c.Destination_Circle_Name,
+                c.Destination_Name,
                 c.duration,
-                c.destination_number_status,
-                c.conversation_duration,
-                c.overall_call_duration,
-                c.customer_id,
-                c.start_time,
-                c.participant_address,
-                c.participant_number_type,
-                c.caller_id_type,
-                c.caller_id_circle,
-                c.participant_start_time,
-                c.participant_end_time,
-                c.participant_duration,
-                c.hangup_cause,
-                c.caller_duration,
-                c.date,
-                c.caller_number_status,
-                c.destination_number,
-                c.from_waiting_time,
-                c.recording,
-                c.end_time,
-                c.destination_operator_name
+                c.conversationDuration,
+                c.Overall_Call_Duration,
+                c.customerId,
+                c.startTime,
+                c.Hangup_Cause,
+                c.Caller_Duration,
+                DATE_FORMAT(c.date, '%Y-%m-%d') AS date,
+                c.Destination_Number,
+                c.fromWaitingTime,
+                c.Recording,
+                c.endTime,
+                c.Destination_Operator_Name,
+                c.Destination_Status,
+                p.participantAddress,
+                p.participantType,
+                p.participantNumberType
 
-            FROM custom_cdr_calls c
+            FROM callsrecord c
 
-            JOIN agent a ON RIGHT(c.destination_number, 10) = a.agentmobile
+            JOIN agent a ON RIGHT(c.Destination_Number, 10) = a.agentmobile
+
+            JOIN participants p ON p.call_id = c.Session_ID
            
             WHERE c.timestamp BETWEEN ? AND ?
-              AND c.call_type = 'INBOUND';
+              AND c.Call_Type = 'INBOUND';
         `;
         } else {
             querySql = `
             SELECT 
-                c.timestamp,
-                c.call_type,
-                c.overall_call_status,
+                 c.timestamp,
+                c.Call_Type,
+                c.Overall_Call_Status,
                 a.agentname,
                 a.agentmobile,
-                c.caller_id,
-                c.customer_name,
-                c.client_correlation_id,
-                c.caller_operator_name,
-                c.time,
-                c.caller_circle_name,
-                c.destination_circle_name,
-                c.destination_name,
+                c.Caller_Number,
+                c.Caller_ID,
+                c.Caller_Status,
+                p.calleridType,
+                p.callerIdCircle,
+                c.Customer_Name,
+                c.Client_Correlation_Id,
+                c.Caller_Operator_Name,
+                c.Time,
+                c.Caller_Circle_Name,
+                c.Destination_Circle_Name,
+                c.Destination_Name,
                 c.duration,
-                c.destination_number_status,
-                c.conversation_duration,
-                c.overall_call_duration,
-                c.customer_id,
-                c.start_time,
-                c.participant_address,
-                c.participant_number_type,
-                c.caller_id_type,
-                c.caller_id_circle,
-                c.participant_start_time,
-                c.participant_end_time,
-                c.participant_duration,
-                c.hangup_cause,
-                c.caller_duration,
-                c.date,
-                c.caller_number_status,
-                c.destination_number,
-                c.from_waiting_time,
-                c.recording,
-                c.end_time,
-                c.destination_operator_name
+                c.conversationDuration,
+                c.Overall_Call_Duration,
+                c.customerId,
+                c.startTime,
+                c.Hangup_Cause,
+                c.Caller_Duration,
+                DATE_FORMAT(c.date, '%Y-%m-%d') AS date,
+                c.Destination_Number,
+                c.fromWaitingTime,
+                c.Recording,
+                c.endTime,
+                c.Destination_Operator_Name,
+                c.Destination_Status,
+                p.participantAddress,
+                p.participantType,
+                p.participantNumberType
 
-            FROM custom_cdr_calls c
+            FROM callsrecord c
 
-            JOIN agent a ON RIGHT(c.destination_number, 10) = a.agentmobile
+            JOIN agent a ON RIGHT(c.Destination_Number, 10) = a.agentmobile
+
+            JOIN participants p ON p.call_id = c.Session_ID
            
             WHERE a.manager_id = ?
             AND c.timestamp BETWEEN ? AND ?
-              AND c.call_type = 'INBOUND';
+              AND c.Call_Type = 'INBOUND';
         `;
 
             queryParams.unshift(manager_id);
@@ -558,7 +571,16 @@ const getInboundCdrData = async (req, res) => {
 
         const cdrData = await query(querySql, queryParams);
 
-        return res.json({ manager_id, cdr_data: cdrData });
+        const formattedData = cdrData.map(row =>
+            Object.fromEntries(
+                Object.entries(row).map(([key, value]) => [
+                    key,
+                    typeof value === 'bigint' ? value.toString() : value
+                ])
+            )
+        );
+
+        return res.json({ manager_id, cdr_data: formattedData });
 
     } catch (err) {
         console.error('Error fetching inbound CDR data:', err);

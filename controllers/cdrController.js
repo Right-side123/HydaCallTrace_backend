@@ -222,15 +222,15 @@ const getCdrData = async (req, res) => {
 
     let filterCondition = "";
 
-    if (filter === 'outbound') {
-        filterCondition = "(RIGHT(c.caller_id, 10) = a.agentmobile)";
-    } else if (filter === 'inbound') {
-        filterCondition = "(RIGHT(c.destination_number, 10) = a.agentmobile)";
+    if (filter === 'OUTBOUND') {
+        filterCondition = "(RIGHT(c.Caller_Number, 10) = RIGHT(a.agentmobile, 10))";
+    } else if (filter === 'INBOUND') {
+        filterCondition = "(RIGHT(c.Destination_Number, 10) = RIGHT(a.agentmobile, 10))";
     } else if (filter === 'all') {
         filterCondition = `(
-            (RIGHT(c.caller_id, 10) = a.agentmobile)
+            (RIGHT(c.Caller_Number, 10) = RIGHT(a.agentmobile, 10))
             OR
-            (RIGHT(c.destination_number, 10) = a.agentmobile)
+            (RIGHT(c.Destination_Number, 10) = RIGHT(a.agentmobile, 10))
         )`;
     } else {
         return res.status(400).json({ error: 'Invalid filter provided' });
@@ -239,17 +239,17 @@ const getCdrData = async (req, res) => {
     let callStatusCondition = "";
 
     if (callStatus === 'ANSWERED') {
-        callStatusCondition = "(c.overall_call_status = 'ANSWERED')";
+        callStatusCondition = "(c.Overall_Call_Status = 'Answered')";
     } else if (callStatus === 'Missed') {
-        callStatusCondition = "(c.overall_call_status = 'Missed')";
+        callStatusCondition = "(c.Overall_Call_Status = 'Missed')";
     } else if (callStatus === 'all') {
         callStatusCondition = `(
-            (c.overall_call_status = 'ANSWERED')
+            (c.Overall_Call_Status = 'Answered')
             OR
-            (c.overall_call_status = 'Missed')
+            (c.Overall_Call_Status = 'Missed')
         )`;
     } else {
-        return res.status(400).json({ error: 'Invalid filter provided' });
+        return res.status(400).json({ error: 'Invalid callStatus provided' });
     }
 
     try {
@@ -269,72 +269,78 @@ const getCdrData = async (req, res) => {
         }
 
         if (callStatusCondition) {
-            whereClauses.push(callStatusCondition)
+            whereClauses.push(callStatusCondition);
         }
 
         if (agent) {
-            whereClauses.push("a.agentmobile = ?");
+            whereClauses.push("RIGHT(a.agentmobile, 10) = ?");
             queryParams.push(agent);
         }
 
         const querySql = `
             SELECT 
                 c.timestamp,
-                c.call_type,
-                c.overall_call_status,
+                c.Call_Type,
+                c.Overall_Call_Status,
                 a.agentname,
                 a.agentmobile,
-                c.caller_id,
-                c.customer_name,
-                c.client_correlation_id,
-                c.caller_operator_name,
-                c.time,
-                c.caller_circle_name,
-                c.destination_circle_name,
-                c.destination_name,
+                c.Caller_ID,
+                c.Customer_Name,
+                c.Client_Correlation_Id,
+                c.Caller_Operator_Name,
+                c.Time,
+                c.Caller_Circle_Name,
+                c.Destination_Circle_Name,
+                c.Destination_Name,
                 c.duration,
-                c.destination_number_status,
-                c.conversation_duration,
-                c.overall_call_duration,
-                c.customer_id,
-                c.start_time,
-                c.participant_address,
-                c.participant_number_type,
-                c.caller_id_type,
-                c.caller_id_circle,
-                c.participant_start_time,
-                c.participant_end_time,
-                c.participant_duration,
+                c.conversationDuration,
+                c.Overall_Call_Duration,
+                c.customerId,
+                c.startTime,
                 c.hangup_cause,
-                c.caller_duration,
+                c.Caller_Duration,
                 c.date,
-                c.caller_number_status,
-                c.destination_number,
-                c.from_waiting_time,
-                c.recording,
-                c.end_time,
-                c.destination_operator_name,
-                 CASE
-          WHEN c.call_type = 'OUTBOUND' THEN c.destination_number
-          WHEN c.call_type = 'INBOUND' THEN c.caller_id
-        END AS customer_number
-            FROM custom_cdr_calls c
+                c.Destination_Number,
+                c.fromWaitingTime,
+                c.Recording,
+                c.endTime,
+                c.Destination_Operator_Name,
+                CASE
+                    WHEN c.Call_Type = 'OUTBOUND' THEN c.Destination_Number
+                    WHEN c.Call_Type = 'INBOUND' THEN c.Caller_Number
+                END AS customer_number
+            FROM callsrecord c
             JOIN agent a ON (
-                (c.call_type = 'OUTBOUND' AND RIGHT(c.caller_id, 10) = a.agentmobile)
+                (c.Call_Type = 'OUTBOUND' AND RIGHT(c.Caller_Number, 10) = RIGHT(a.agentmobile, 10))
                 OR
-                (c.call_type = 'INBOUND' AND RIGHT(c.destination_number, 10) = a.agentmobile)
+                (c.Call_Type = 'INBOUND' AND RIGHT(c.Destination_Number, 10) = RIGHT(a.agentmobile, 10))
             )
             WHERE ${whereClauses.join(" AND ")}
         `;
 
         const cdrData = await query(querySql, queryParams);
 
-        return res.json({ manager_id, cdr_data: cdrData });
+        // Convert BigInt fields to string for safe JSON serialization
+        const safeData = cdrData.map(row => {
+            const newRow = {};
+            for (const key in row) {
+                if (typeof row[key] === 'bigint') {
+                    newRow[key] = row[key].toString();
+                } else {
+                    newRow[key] = row[key];
+                }
+            }
+            return newRow;
+        });
+
+        return res.json({ manager_id, cdr_data: safeData });
     } catch (err) {
         console.error('Error fetching CDR data:', err);
         return res.status(500).json({ error: 'Failed to fetch CDR data' });
     }
 };
+
+module.exports = { getCdrData };
 
 
 

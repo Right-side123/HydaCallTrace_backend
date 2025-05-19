@@ -785,7 +785,6 @@ const getMissedCall = async (req, res) => {
                 c.Destination_Operator_Name,
                 c.Destination_Status,
                 p.participantAddress,
-                p.participantType,
                 p.participantNumberType,
 
                       CASE

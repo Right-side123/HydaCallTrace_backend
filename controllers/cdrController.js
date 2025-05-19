@@ -310,7 +310,6 @@ const getCdrData = async (req, res) => {
                 c.Destination_Operator_Name,
                 c.Destination_Status,
                 p.participantAddress,
-                p.participantType,
                 p.participantNumberType,
 
                 CASE
@@ -445,7 +444,6 @@ const getCdrDataSigletime = async (req, res) => {
                 c.Destination_Operator_Name,
                 c.Destination_Status,
                 p.participantAddress,
-                p.participantType,
                 p.participantNumberType,
 
                 CASE

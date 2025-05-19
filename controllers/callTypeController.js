@@ -362,7 +362,6 @@ const getOutboundCdrData = async (req, res) => {
                 c.Destination_Operator_Name,
                 c.Destination_Status,
                 p.participantAddress,
-                p.participantType,
                 p.participantNumberType
 
             FROM callsrecord c
@@ -409,7 +408,6 @@ const getOutboundCdrData = async (req, res) => {
                 c.Destination_Operator_Name,
                 c.Destination_Status,
                 p.participantAddress,
-                p.participantType,
                 p.participantNumberType
         
             FROM callsrecord c
@@ -504,7 +502,6 @@ const getInboundCdrData = async (req, res) => {
                 c.Destination_Operator_Name,
                 c.Destination_Status,
                 p.participantAddress,
-                p.participantType,
                 p.participantNumberType
 
             FROM callsrecord c
@@ -551,7 +548,6 @@ const getInboundCdrData = async (req, res) => {
                 c.Destination_Operator_Name,
                 c.Destination_Status,
                 p.participantAddress,
-                p.participantType,
                 p.participantNumberType
 
             FROM callsrecord c

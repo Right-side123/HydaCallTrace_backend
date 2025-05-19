@@ -322,7 +322,7 @@ const getCdrData = async (req, res) => {
                 OR
                 (c.Call_Type = 'INBOUND' AND RIGHT(c.Destination_Number, 10) = RIGHT(a.agentmobile, 10))
             )
-                JOIN participants p ON p.call_id = c.Session_ID
+                JOIN participants p ON p.call_id = c.Session_ID AND p.participantType = 'From'
             WHERE ${whereClauses.join(" AND ")}
         `;
 
@@ -464,7 +464,7 @@ const getCdrDataSigletime = async (req, res) => {
                 OR
                 (c.Call_Type = 'INBOUND' AND RIGHT(c.Destination_Number, 10) = a.agentmobile)
             )
-                JOIN participants p ON p.call_id = c.Session_ID
+                JOIN participants p ON p.call_id = c.Session_ID AND p.participantType = 'From'
             WHERE ${whereClauses.join(" AND ")}
         ) AS main
         WHERE main.rn = 1

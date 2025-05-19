@@ -308,7 +308,7 @@ const AgentsController = async (req, res) => {
 
     let agentSql = `
       SELECT 
-      a.id,
+        a.id,
         a.agentname,
         a.agentmobile,
         m.managername,
@@ -316,40 +316,51 @@ const AgentsController = async (req, res) => {
         a.department,
         a.imei_no,
         a.SIM_No,
-        COUNT((c.Call_Type = 'OUTBOUND' AND c.Caller_Number = a.agentmobile) OR 
-          (c.call_type = 'INBOUND' AND c.Destination_Number = a.agentmobile)) AS totalCalls,
+
+       
+        SUM(
+          CASE 
+            WHEN (c.Call_Type = 'OUTBOUND' AND RIGHT(c.Caller_Number, 10) = a.agentmobile) OR
+                 (c.Call_Type = 'INBOUND' AND RIGHT(c.Destination_Number, 10) = a.agentmobile)
+            THEN 1 ELSE 0 
+          END
+        ) AS totalCalls,
+
         SUM(CASE WHEN c.Call_Type = 'OUTBOUND' THEN 1 ELSE 0 END) AS totaloutbound,
         SUM(CASE WHEN c.Call_Type = 'INBOUND' THEN 1 ELSE 0 END) AS totalinbound,
         SUM(CASE WHEN c.Overall_Call_Status = 'Missed' THEN 1 ELSE 0 END) AS totalMissed,
+
         COUNT(DISTINCT 
-            CASE WHEN c.Call_Type = 'OUTBOUND' THEN c.Destination_Number
-                  WHEN c.Call_Type = 'INBOUND' THEN c.Caller_Number
-            END
-          ) AS totalUnique
+          CASE 
+            WHEN c.Call_Type = 'OUTBOUND' THEN c.Destination_Number
+            WHEN c.Call_Type = 'INBOUND' THEN c.Caller_Number
+          END
+        ) AS totalUnique
 
       FROM agent a
       LEFT JOIN manager m ON a.manager_id = m.manager_id 
       LEFT JOIN callsrecord c 
         ON (
-          (c.Call_Type = 'OUTBOUND' AND c.Caller_Number = a.agentmobile) OR 
-          (c.Call_Type = 'INBOUND' AND c.Destination_Number = a.agentmobile)
+          (c.Call_Type = 'OUTBOUND' AND RIGHT (c.Caller_Number, 10) = RIGHT(a.agentmobile, 10)) OR 
+          (c.Call_Type = 'INBOUND' AND RIGHT(c.Destination_Number, 10) = RIGHT(a.agentmobile, 10))
         )
     `;
 
-    let queryParams = [];
+    const conditions = [];
+    const queryParams = [];
 
     if (manager_id != 1) {
-      agentSql += ` WHERE a.manager_id = ?`;
+      conditions.push(`a.manager_id = ?`);
       queryParams.push(manager_id);
     }
 
     if (start_date && end_date) {
-      if (manager_id != 1) {
-        agentSql += ` AND c.timestamp BETWEEN ? AND ?`;
-      } else {
-        agentSql += ` WHERE c.timestamp BETWEEN ? AND ?`;
-      }
+      conditions.push(`c.timestamp BETWEEN ? AND ?`);
       queryParams.push(start_date, end_date);
+    }
+
+    if (conditions.length > 0) {
+      agentSql += ` WHERE ` + conditions.join(" AND ");
     }
 
     agentSql += ` GROUP BY a.agentname, a.agentmobile`;
@@ -373,6 +384,8 @@ const AgentsController = async (req, res) => {
     return res.status(500).send("Internal Server Error");
   }
 };
+
+module.exports = AgentsController;
 
 
 

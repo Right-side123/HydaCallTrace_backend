@@ -369,7 +369,7 @@ const getCdrDataSigletime = async (req, res) => {
     const queryStartDateTime = `${startDate} ${queryStartTime}`;
     const queryEndDateTime = `${endDate} ${queryEndTime}`;
 
-    if (!['inbound', 'outbound', 'all'].includes(filter)) {
+    if (!['INBOUND', 'OUTBOUND', 'all'].includes(filter)) {
         return res.status(400).json({ error: 'Invalid call direction filter provided' });
     }
 

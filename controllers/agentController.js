@@ -316,23 +316,23 @@ const AgentsController = async (req, res) => {
         a.department,
         a.imei_no,
         a.SIM_No,
-        COUNT((c.call_type = 'OUTBOUND' AND c.caller_id = a.agentmobile) OR 
-          (c.call_type = 'INBOUND' AND c.destination_number = a.agentmobile)) AS totalCalls,
-        SUM(CASE WHEN c.call_type = 'OUTBOUND' THEN 1 ELSE 0 END) AS totaloutbound,
-        SUM(CASE WHEN c.call_type = 'INBOUND' THEN 1 ELSE 0 END) AS totalinbound,
-        SUM(CASE WHEN c.overall_call_status = 'Missed' THEN 1 ELSE 0 END) AS totalMissed,
+        COUNT((c.Call_Type = 'OUTBOUND' AND c.Caller_Number = a.agentmobile) OR 
+          (c.call_type = 'INBOUND' AND c.Destination_Number = a.agentmobile)) AS totalCalls,
+        SUM(CASE WHEN c.Call_Type = 'OUTBOUND' THEN 1 ELSE 0 END) AS totaloutbound,
+        SUM(CASE WHEN c.Call_Type = 'INBOUND' THEN 1 ELSE 0 END) AS totalinbound,
+        SUM(CASE WHEN c.Overall_Call_Status = 'Missed' THEN 1 ELSE 0 END) AS totalMissed,
         COUNT(DISTINCT 
-            CASE WHEN c.call_type = 'OUTBOUND' THEN c.destination_number
-                  WHEN c.call_type = 'INBOUND' THEN c.caller_id
+            CASE WHEN c.Call_Type = 'OUTBOUND' THEN c.Destination_Number
+                  WHEN c.Call_Type = 'INBOUND' THEN c.Caller_Number
             END
           ) AS totalUnique
 
       FROM agent a
       LEFT JOIN manager m ON a.manager_id = m.manager_id 
-      LEFT JOIN custom_cdr_calls c 
+      LEFT JOIN callsrecord c 
         ON (
-          (c.call_type = 'OUTBOUND' AND c.caller_id = a.agentmobile) OR 
-          (c.call_type = 'INBOUND' AND c.destination_number = a.agentmobile)
+          (c.Call_Type = 'OUTBOUND' AND c.Caller_Number = a.agentmobile) OR 
+          (c.Call_Type = 'INBOUND' AND c.Destination_Number = a.agentmobile)
         )
     `;
 

@@ -334,6 +334,24 @@ const getCdrData = async (req, res) => {
             for (const key in row) {
                 if (typeof row[key] === 'bigint') {
                     newRow[key] = row[key].toString();
+                } else if (key === 'Caller_Status') {
+                    if (row[key] === 'Removed') {
+                        newRow[key] = 'No Answer';
+                    } else if (row[key] === 'Disconnected') {
+                        if (row.Overall_Call_Status === 'Answered') {
+                            newRow[key] = 'Answered';
+                        } else if (row.Overall_Call_Status === 'Missed') {
+                            newRow[key] = 'No Answer';
+                        } else {
+                            newRow[key] = row[key];
+                        }
+                    } else if (row[key] === 'NotReachable') {
+                        newRow[key] = 'Not Reachable';
+                    } else if (row[key] === 'NoAnswer') {
+                        newRow[key] = 'No Answer';
+                    } else {
+                        newRow[key] = row[key];
+                    }
                 } else {
                     newRow[key] = row[key];
                 }
@@ -473,9 +491,36 @@ const getCdrDataSigletime = async (req, res) => {
     try {
         const cdrData = await query(querySql, queryParams);
 
-        const cleanData = JSON.parse(JSON.stringify(cdrData, (key, value) =>
-            typeof value === 'bigint' ? value.toString() : value
-        ));
+        const cleanData = cdrData.map(row => {
+            const newRow = {};
+            for (const key in row) {
+                if (typeof row[key] === 'bigint') {
+                    newRow[key] = row[key].toString();
+                } else if (key === 'Caller_Status') {
+                    if (row[key] === 'Removed') {
+                        newRow[key] = 'No Answer';
+                    } else if (row[key] === 'Disconnected') {
+                        if (row.Overall_Call_Status === 'Answered') {
+                            newRow[key] = 'Answered';
+                        } else if (row.Overall_Call_Status === 'Missed') {
+                            newRow[key] = 'No Answer';
+                        } else {
+                            newRow[key] = row[key];
+                        }
+                    } else if (row[key] === 'NotReachable') {
+                        newRow[key] = 'Not Reachable';
+                    } else if (row[key] === 'NoAnswer') {
+                        newRow[key] = 'No Answer';
+                    } else {
+                        newRow[key] = row[key];
+                    }
+                } else {
+                    newRow[key] = row[key];
+                }
+            }
+            return newRow;
+        });
+
 
         return res.json({ manager_id, cdr_data: cleanData });
     } catch (err) {
@@ -483,5 +528,6 @@ const getCdrDataSigletime = async (req, res) => {
         return res.status(500).json({ error: 'Failed to fetch CDR data' });
     }
 };
+
 
 module.exports = { getCdrData, getCdrDataSigletime };

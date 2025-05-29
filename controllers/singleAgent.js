@@ -69,7 +69,7 @@
 //             FROM customcdr c
 
 //             JOIN rs_agentmobile a ON c.agent = a.agentmobile
-            
+
 //             WHERE 
 //                 c.agent = ? AND 
 //                 c.call_datetime BETWEEN ? AND ?
